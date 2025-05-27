@@ -5,8 +5,12 @@ const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPointer, setIsPointer] = useState(false);
   const [isHidden, setIsHidden] = useState(true);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
+    // Check if device is touch-enabled
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
     const updatePosition = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
@@ -19,18 +23,28 @@ const CustomCursor = () => {
     const handleMouseEnter = () => setIsHidden(false);
     const handleMouseLeave = () => setIsHidden(true);
 
-    document.addEventListener('mousemove', updatePosition);
-    document.addEventListener('mousemove', updateCursorState);
-    document.addEventListener('mouseenter', handleMouseEnter);
-    document.addEventListener('mouseleave', handleMouseLeave);
+    // Only add mouse event listeners if not a touch device
+    if (!isTouchDevice) {
+      document.addEventListener('mousemove', updatePosition);
+      document.addEventListener('mousemove', updateCursorState);
+      document.addEventListener('mouseenter', handleMouseEnter);
+      document.addEventListener('mouseleave', handleMouseLeave);
+    }
 
     return () => {
-      document.removeEventListener('mousemove', updatePosition);
-      document.removeEventListener('mousemove', updateCursorState);
-      document.removeEventListener('mouseenter', handleMouseEnter);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      if (!isTouchDevice) {
+        document.removeEventListener('mousemove', updatePosition);
+        document.removeEventListener('mousemove', updateCursorState);
+        document.removeEventListener('mouseenter', handleMouseEnter);
+        document.removeEventListener('mouseleave', handleMouseLeave);
+      }
     };
-  }, []);
+  }, [isTouchDevice]);
+
+  // Don't render anything on touch devices
+  if (isTouchDevice) {
+    return null;
+  }
 
   return (
     <>
