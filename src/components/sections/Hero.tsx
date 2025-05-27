@@ -47,7 +47,7 @@ const Hero = () => {
             </h1>
           </div>
           <p className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl text-center mt-2 px-4 sm:px-0">
-            A Web Developer and AI/ML Engineer with a passion for crafting user-friendly interfaces and building data-driven applications.
+            An AI/ML Engineer with a passion for crafting user-friendly interfaces and building data-driven applications.
             <br className="hidden sm:block" />
             I love blending art, technology, and machine learning to solve real-world problems and deliver impactful solutions.
           </p>
