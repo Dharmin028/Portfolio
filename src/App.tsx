@@ -15,10 +15,14 @@ function App() {
   // Custom cursor logic
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [isClicking, setIsClicking] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Check if device is touch-enabled
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
     const moveCursor = (e: MouseEvent) => {
       setCursor({ x: e.clientX, y: e.clientY });
     };
@@ -35,38 +39,46 @@ function App() {
       if (ringRef.current) ringRef.current.classList.remove('clicking');
     };
 
-    document.body.classList.add('custom-cursor');
-    window.addEventListener('mousemove', moveCursor);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
+    // Only add cursor-related classes and event listeners if not a touch device
+    if (!isTouchDevice) {
+      document.body.classList.add('custom-cursor');
+      window.addEventListener('mousemove', moveCursor);
+      window.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
 
     return () => {
-      document.body.classList.remove('custom-cursor');
-      window.removeEventListener('mousemove', moveCursor);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
+      if (!isTouchDevice) {
+        document.body.classList.remove('custom-cursor');
+        window.removeEventListener('mousemove', moveCursor);
+        window.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mouseup', handleMouseUp);
+      }
     };
-  }, []);
+  }, [isTouchDevice]);
 
   useEffect(() => {
-    if (dotRef.current) {
+    if (!isTouchDevice && dotRef.current) {
       dotRef.current.style.left = `${cursor.x}px`;
       dotRef.current.style.top = `${cursor.y}px`;
     }
-    if (ringRef.current) {
-      // Add smooth movement to the ring
+    if (!isTouchDevice && ringRef.current) {
       ringRef.current.style.left = `${cursor.x}px`;
       ringRef.current.style.top = `${cursor.y}px`;
     }
-  }, [cursor]);
+  }, [cursor, isTouchDevice]);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="theme-preference">
-      <CustomCursor />
+      {!isTouchDevice && <CustomCursor />}
       <div className="min-h-screen w-full">
         {/* Custom Cursor */}
-        <div ref={ringRef} className="cursor-ring" />
-        <div ref={dotRef} className="cursor-dot" />
+        {!isTouchDevice && (
+          <>
+            <div ref={ringRef} className="cursor-ring" />
+            <div ref={dotRef} className="cursor-dot" />
+          </>
+        )}
         <Navbar />
         <main className="w-full">
           <Hero />
